@@ -1,0 +1,42 @@
+/* General page layout */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+  }
+  
+  /* Main container */
+  #main {
+    text-align: center; /* Center all content */
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Styling for the heading */
+  h1 {
+    color: #333;
+  }
+  
+  /* Styling for the status text */
+  #status {
+    font-size: 20px;
+    color: #888;
+    margin-top: 20px;
+  }
+  
+  /* Styling for the QR code */
+  pre {
+    font-family: "Courier New", Courier, monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 16px;
+    margin-top: 20px;
+  }
+  
