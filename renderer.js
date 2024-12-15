@@ -1,18 +1,5 @@
 const { ipcRenderer } = require("electron");
 const main = document.getElementById("main");
-
-let initialState = true;
-
-main.innerHTML = `
-  <h1>Start Whatsapp Server</h1>
-    <form id="portForm">
-    <label for="port">Port:</label>
-    <input type="number" id="port" name="port" required />
-    <button type="submit">Start Server</button>
-  </form>
-  <p id="status"></p>
-`;
-
 const status = document.getElementById("status");
 
 // Listen for status updates
@@ -23,12 +10,6 @@ ipcRenderer.on("status", (event, message) => {
 // Listen for messages updates
 ipcRenderer.on("messages", (event, message) => {
   let messages = document.getElementById("messages");
-
-  if (!messages) {
-    messages = document.createElement("pre");
-    messages.id = "messages";
-    main.appendChild(messages);
-  }
 
   if (message === null) {
     messages.remove();
@@ -64,21 +45,27 @@ ipcRenderer.on("qr", (event, qr) => {
   }
 });
 
-const portForm = document.getElementById("portForm");
+const portForm = document.getElementById("startButton");
 
-portForm.addEventListener("submit", (event) => {
+portForm.addEventListener("click", (event) => {
   event.preventDefault(); // Prevent the default form submission
 
   const status = document.getElementById("status");
 
   status.textContent = "Waiting for QR code...";
 
-  const portInput = document.getElementById("port");
-  const port = portInput.value;
+  let payload = {
+    ip: document.getElementById("ip").value,
+    port: document.getElementById("port").value,
+  };
 
-  if (port) {
-    ipcRenderer.send("start-server", port); // Send the port to the main process
-    status.textContent = `Attempting to start server on port ${port}...`;
+  if (ip && port) {
+    try {
+      ipcRenderer.send("start-server", payload); // Send the port to the main process
+      status.textContent = `Attempting to start server on ip = ${payload.ip} port = ${payload.port}`;
+    } catch (error) {
+      event.reply("server-started", `Failed to start server: ${error.message}`);
+    }
   } else {
     status.textContent = "Please enter a valid port number.";
   }

@@ -1,45 +1,14 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const { Client, LocalAuth } = require("whatsapp-web.js");
+const { initializeWhatsAppClient, getClient } = require("./whatsappClient");
 
 const csvFilePath = path.join(__dirname, "message_log.csv");
 
 let server;
-let whatsappClient;
 
-// Initialize WhatsApp Web client
-const initializeWhatsAppClient = (mainWindow) => {
-  whatsappClient = new Client({
-    authStrategy: new LocalAuth(),
-  });
-
-  whatsappClient.on("qr", (qr) => {
-    mainWindow.webContents.send("qr", qr); // Send QR code to the renderer process
-  });
-
-  whatsappClient.on("ready", () => {
-    mainWindow.webContents.send("status", "Client is ready!");
-    mainWindow.webContents.send("qr", null);
-  });
-
-  whatsappClient.on("authenticated", () => {
-    mainWindow.webContents.send("status", "Authenticated successfully!");
-    mainWindow.webContents.send("qr", null);
-  });
-
-  whatsappClient.on("auth_failure", (message) => {
-    mainWindow.webContents.send("status", `Authentication failed: ${message}`);
-  });
-
-  whatsappClient.on("disconnected", (reason) => {
-    mainWindow.webContents.send("status", `Disconnected: ${reason}`);
-  });
-
-  whatsappClient.initialize();
-};
-
-const createExpressServer = (port, mainWindow) => {
+const createExpressServer = async (payload, mainWindow) => {
+  // here i am getting port from payload and running express app on that port but now i am want use custome ip also
   initializeWhatsAppClient(mainWindow);
 
   const app = express();
@@ -68,10 +37,11 @@ const createExpressServer = (port, mainWindow) => {
     const formattedPhone = `${phone}@c.us`; // Format the phone number
 
     try {
-      await whatsappClient.sendMessage(formattedPhone, message);
+      const client = getClient();
+      await client.sendMessage(formattedPhone, message);
       mainWindow.webContents.send(
         "messages",
-        `Message sent successfully to ${phone}`
+        `Message sent successfully to ${phone} ${message}`
       );
 
       const logEntry = `${new Date().toISOString()},${phone},${message},Success\n`;
@@ -100,15 +70,9 @@ const createExpressServer = (port, mainWindow) => {
     }
   });
 
-  // Define API endpoints
-  app.post("/submit", (req, res) => {
-    console.log("Received input:", req.body);
-    res.json({ message: "Server received the data", data: req.body });
-  });
-
   // Start the server
-  server = app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+  server = app.listen(payload.port, payload.ip, () => {
+    console.log(`Server running on http://${payload.ip}:${payload.port}`);
   });
 };
 

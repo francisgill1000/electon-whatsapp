@@ -1,14 +1,15 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
-const path = require("path");
+const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const { createExpressServer, stopExpressServer } = require("./server");
 
 let mainWindow;
 
-// Function to create the Electron window
 const createWindow = () => {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: width, // Set to screen width
+    height: height, // Set to screen height
+    // fullscreen: true, // Enables full screen mode
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false, // Enable IPC communication
@@ -19,29 +20,28 @@ const createWindow = () => {
   mainWindow.on("closed", () => (mainWindow = null));
 };
 
-
-
 // Electron app lifecycle
 app.on("ready", () => {
   createWindow();
 
-  ipcMain.on("start-server", (event, port) => {
+  ipcMain.on("start-server", async (event, payload) => {
     try {
-      createExpressServer(port,mainWindow);
+      await createExpressServer(payload, mainWindow);
 
       event.reply(
         "server-started",
-        `Server running on http://localhost:${port}`
+        `Server running on http://${payload.ip}:${payload.port}`
       );
     } catch (error) {
-      console.error("Error starting server:", error);
       event.reply("server-started", `Failed to start server: ${error.message}`);
     }
   });
 });
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
 });
 
 app.on("activate", () => {
