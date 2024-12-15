@@ -45,9 +45,9 @@ ipcRenderer.on("qr", (event, qr) => {
   }
 });
 
-const portForm = document.getElementById("startButton");
+const startButton = document.getElementById("startButton");
 
-portForm.addEventListener("click", (event) => {
+startButton.addEventListener("click", (event) => {
   event.preventDefault(); // Prevent the default form submission
 
   const status = document.getElementById("status");
@@ -68,5 +68,20 @@ portForm.addEventListener("click", (event) => {
     }
   } else {
     status.textContent = "Please enter a valid port number.";
+  }
+});
+
+const stopButton = document.getElementById("stopButton");
+
+stopButton.addEventListener("click", (event) => {
+  event.preventDefault(); // Prevent the default form submission
+
+  const status = document.getElementById("status");
+
+  try {
+    ipcRenderer.send("stop-server");
+    status.textContent = `Server Stopped`;
+  } catch (error) {
+    status.textContent = `Failed to Server Stopped ` + error;
   }
 });

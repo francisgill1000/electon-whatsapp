@@ -8,7 +8,6 @@ const csvFilePath = path.join(__dirname, "message_log.csv");
 let server;
 
 const createExpressServer = async (payload, mainWindow) => {
-  // here i am getting port from payload and running express app on that port but now i am want use custome ip also
   initializeWhatsAppClient(mainWindow);
 
   const app = express();
@@ -79,7 +78,7 @@ const createExpressServer = async (payload, mainWindow) => {
 const stopExpressServer = () => {
   if (server) {
     server.close(() => {
-      console.log("Server stopped.");
+      console.log(`Server Stop`);
     });
   }
 };

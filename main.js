@@ -36,6 +36,13 @@ app.on("ready", () => {
       event.reply("server-started", `Failed to start server: ${error.message}`);
     }
   });
+
+  ipcMain.on("stop-server", async (event) => {
+    try {
+      stopExpressServer();
+    } catch (error) {
+    }
+  });
 });
 
 app.on("window-all-closed", () => {
