@@ -1,45 +1,85 @@
 const { ipcRenderer } = require("electron");
 const main = document.getElementById("main");
 
-const heading = document.createElement("h1");
-const pre = document.createElement("pre");
-const status = document.createElement("p");
-const messages = document.createElement("pre");
+let initialState = true;
 
-status.id = "status";
-status.textContent = "Waiting for QR code..."; // Initial text
-heading.textContent = "WhatsApp Web Electron";
+main.innerHTML = `
+  <h1>Start Whatsapp Server</h1>
+    <form id="portForm">
+    <label for="port">Port:</label>
+    <input type="number" id="port" name="port" required />
+    <button type="submit">Start Server</button>
+  </form>
+  <p id="status"></p>
+`;
 
-// Clear any previous content in the main div
-main.innerHTML = "";
-main.appendChild(heading);
-main.appendChild(status);
-main.appendChild(messages);
+const status = document.getElementById("status");
 
 // Listen for status updates
 ipcRenderer.on("status", (event, message) => {
   status.textContent = message;
 });
 
+// Listen for messages updates
 ipcRenderer.on("messages", (event, message) => {
-  messages.innerHTML += message + "<br>"; // Use innerHTML here for line breaks
+  let messages = document.getElementById("messages");
+
+  if (!messages) {
+    messages = document.createElement("pre");
+    messages.id = "messages";
+    main.appendChild(messages);
+  }
+
+  if (message === null) {
+    messages.remove();
+  } else {
+    messages.innerHTML += message + "<br>"; // Use innerHTML here for line breaks
+  }
 });
 
 // Listen for QR code updates
 ipcRenderer.on("qr", (event, qr) => {
   const qrcode = require("qrcode-terminal");
 
-  // Generate QR code and append it to the pre tag
+  let qrBox = document.getElementById("qrBox");
+
   if (qr === null) {
-    // Clear the QR code when it's set to null
-    pre.textContent = ""; // Clear the content of the pre tag
+    // Remove the QR box if it exists
+    if (qrBox) {
+      qrBox.remove();
+    }
   } else {
-    // Generate QR code and append it to the pre tag
+    // Create QR box if it does not exist
+    if (!qrBox) {
+      qrBox = document.createElement("pre");
+      qrBox.id = "qrBox";
+      main.appendChild(qrBox);
+    }
+
     qrcode.generate(qr, { small: true }, (qrCode) => {
       if (qrCode) {
-        pre.textContent = qrCode; // Set QR code inside pre tag
-        main.appendChild(pre);
+        qrBox.textContent = qrCode; // Set QR code inside pre tag
       }
     });
+  }
+});
+
+const portForm = document.getElementById("portForm");
+
+portForm.addEventListener("submit", (event) => {
+  event.preventDefault(); // Prevent the default form submission
+
+  const status = document.getElementById("status");
+
+  status.textContent = "Waiting for QR code...";
+
+  const portInput = document.getElementById("port");
+  const port = portInput.value;
+
+  if (port) {
+    ipcRenderer.send("start-server", port); // Send the port to the main process
+    status.textContent = `Attempting to start server on port ${port}...`;
+  } else {
+    status.textContent = "Please enter a valid port number.";
   }
 });
