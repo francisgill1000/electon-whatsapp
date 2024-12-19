@@ -29,10 +29,10 @@ const initializeWhatsAppClient = (mainWindow) => {
     mainWindow.webContents.send("status", `Disconnected: ${reason}`);
   });
 
-  whatsappClient.on("message", (message) => {
-    const phoneWithoutAtCUs = message.from.replace("@c.us", ""); // Remove @c.us
-    mainWindow.webContents.send("messages", `Message recieved from ${ phoneWithoutAtCUs} ${message.body}`);
-  });
+  // whatsappClient.on("message", (message) => {
+  //   const phoneWithoutAtCUs = message.from.replace("@c.us", ""); // Remove @c.us
+  //   mainWindow.webContents.send("messages", `Message recieved from ${ phoneWithoutAtCUs} ${message.body}`);
+  // });
 
   whatsappClient.initialize();
 };
