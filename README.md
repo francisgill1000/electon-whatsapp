@@ -11,6 +11,10 @@ This project allows you to send automated messages via WhatsApp using the `whats
     sudo snap install chromium
     ```
 
+Prequisite
+  Node: curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && sudo apt install nodejs -y
+  Chromium: sudo snap install chromium (linux only)
+
 ## Installation
 
 1. **Clone the repository** (if applicable):
@@ -21,9 +25,7 @@ This project allows you to send automated messages via WhatsApp using the `whats
 
 2. **npm i**:
 
-3. **sudo snap install chromium**:
-
-4. **Configure path in puppeteer**
-    puppeteer: {
-      executablePath: "/path/to/your/chromium", // Replace with the actual path
-    },
+4. **Configure path in puppeteer linux only**
+   puppeteer: {
+     executablePath: "/path/to/your/chromium", // Replace with the actual path
+   },
